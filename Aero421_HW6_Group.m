@@ -115,19 +115,12 @@ disp('----------------------------')
 %part a)
 init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
 
-<<<<<<< HEAD
+
 %initial angular momentum
 h_i=I*w_bi; %[kg*m^2/s] (3x1)
 
 %initial angular velocity (cross)
 w_b_cross=cross_matrix(w_bi); %rad/s
-
-%angular velocity rate
-% wdot_b=(-w_b_cross*h_i)\I;
-
-=======
-
-
 
 %kinematics
 vect = [ init_theta 0 0];
@@ -135,7 +128,7 @@ vect = [ init_theta 0 0];
 wbi_x = cross_matrix(w_bi);
 
 Cbi_dot = -wbi_x*c21_matrix;
->>>>>>> 07e03df0cd60cafe488931b77dc19378f953a585
+
 %part b)
 
 %part c)
