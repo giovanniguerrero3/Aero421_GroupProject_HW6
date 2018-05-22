@@ -4,7 +4,7 @@
 clear all; close all; clc
 format long g
 %% Set Up
-
+% Roberto sucks
 %COES
 global mu I com 
 mu =398600;
