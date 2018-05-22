@@ -11,7 +11,7 @@ mu =398600;
 
 period = 100*60; %period in seconds (100 mins);
 
-h = 53335.2; %km^2/s (angular momentum) 
+h = 53335.2; %km^2/s (angular momentum)
 ecc = 0; %eccentricity)
 RAAN = 0; %deg
 inc = 98.43; %deg (inclination)
@@ -105,12 +105,14 @@ disp('----------------------------')
  com = [0 0 0; 0 0 0; 0 0 0.23437]; %is this the 3D one?
  
 %Geometric Center (relative to center of bus(done on paper))
- 
+
 
 %% Problem 2
 
 disp('Problem 2')
 disp('----------------------------')
+
+
 
 %part a)
 
