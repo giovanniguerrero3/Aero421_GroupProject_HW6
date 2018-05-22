@@ -117,6 +117,15 @@ disp('----------------------------')
 %part a)
 init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
 
+
+
+
+%kinematics
+vect = [ init_theta 0 0];
+[c21_matrix] = rot321(vect);
+wbi_x = cross_matrix(w_bi);
+
+Cbi_dot = -wbi_x*c21_matrix;
 %part b)
 
 %part c)
