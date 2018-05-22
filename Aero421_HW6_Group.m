@@ -11,13 +11,12 @@ mu =398600;
 
 period = 100*60; %period in seconds (100 mins);
 
-h = 53335.2; %km^2/s (angular momentum) yeeeeeee
+h = 53335.2; %km^2/s (angular momentum) 
 ecc = 0; %eccentricity)
 RAAN = 0; %deg
 inc = 98.43; %deg (inclination)
 w = 0; %deg (omega (argument of periapsis))
 ta = 0; %deg (true anomaly)
-
 
 [Ri,Vi] = coes2rv(h,mu,ecc,ta,RAAN,inc,w);
 
