@@ -113,6 +113,7 @@ disp('Problem 2')
 disp('----------------------------')
 
 %part a)
+init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
 
 %part b)
 

@@ -11,13 +11,12 @@ mu =398600;
 
 period = 100*60; %period in seconds (100 mins);
 
-h = 53335.2; %km^2/s (angular momentum) yeeeeeee
+h = 53335.2; %km^2/s (angular momentum) 
 ecc = 0; %eccentricity)
 RAAN = 0; %deg
 inc = 98.43; %deg (inclination)
 w = 0; %deg (omega (argument of periapsis))
 ta = 0; %deg (true anomaly)
-
 
 [Ri,Vi] = coes2rv(h,mu,ecc,ta,RAAN,inc,w);
 
@@ -114,8 +113,17 @@ disp('Problem 2')
 disp('----------------------------')
 
 %part a)
+init_theta = atan(Vi(2)/Vi(3)); %angle at the beginning of orbit between Xb and Zeci
+
+%part b)
+
+%part c)
+
 %part d)
-Tg = (3*mu)/(norm(r)^5)*r_cross*I*r; % Gravity Gradient Torque, taken from notes on April 10
+% r is the r vector from the center of the earth to the center of the body?
+Tg = (3*mu)/(norm(r)^5)*cross(r,I*r); % Gravity Gradient Torque, taken from notes on April 10
+
+%part e)
 
 
 %% Propogate and Plot
