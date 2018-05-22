@@ -4,14 +4,14 @@
 clear; close all; clc
 format long g
 %% Set Up
-%It works!
+
 %COES
 global mu I com 
 mu =398600;
 
 period = 100*60; %period in seconds (100 mins);
 
-h = 53335.2; %km^2/s (angular momentum) yeeee
+h = 53335.2; %km^2/s (angular momentum) yeeeeeee
 ecc = 0; %eccentricity)
 RAAN = 0; %deg
 inc = 98.43; %deg (inclination)
@@ -112,6 +112,10 @@ disp('----------------------------')
 
 disp('Problem 2')
 disp('----------------------------')
+
+%part a)
+%part d)
+Tg = (3*mu)/(norm(r)^5)*r_cross*I*r; % Gravity Gradient Torque, taken from notes on April 10
 
 
 %% Propogate and Plot

@@ -4,7 +4,7 @@
 clear; close all; clc
 format long g
 %% Set Up
-%It works!
+
 %COES
 global mu I com 
 mu =398600;
@@ -112,6 +112,18 @@ disp('----------------------------')
 
 disp('Problem 2')
 disp('----------------------------')
+
+%part a)
+
+%part b)
+
+%part c)
+
+%part d)
+% r is the r vector from the center of the earth to the center of the body?
+Tg = (3*mu)/(norm(r)^5)*r_cross*I*r; % Gravity Gradient Torque, taken from notes on April 10
+
+%part e)
 
 
 %% Propogate and Plot
