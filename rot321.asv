@@ -1,6 +1,6 @@
 function [ c21_matrix ] = rot321( phi, theta, psy )
-% Rotation is from ECI to LVLH
-%*** Keep all angles in RADIANS ***
+
+%*** Keep all angles in RADIANS
 
 Cx = [1 0 0;
     0 cos(phi) sin(phi);
