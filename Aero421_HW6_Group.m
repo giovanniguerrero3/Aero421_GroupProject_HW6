@@ -11,7 +11,7 @@ mu =398600;
 
 period = 100*60; %period in seconds (100 mins);
 
-h = 53335.2; %km^2/s (angular momentum)
+h = 53335.2; %km^2/s (angular momentum) (nah son)
 ecc = 0; %eccentricity)
 RAAN = 0; %deg
 inc = 98.43; %deg (inclination)
