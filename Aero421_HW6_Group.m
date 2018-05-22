@@ -126,6 +126,7 @@ vect = [ init_theta 0 0];
 wbi_x = cross_matrix(w_bi);
 
 Cbi_dot = -wbi_x*c21_matrix;
+
 %part b)
 
 %part c)
