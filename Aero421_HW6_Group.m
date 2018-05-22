@@ -1,7 +1,7 @@
 % Giovanni Guerrero
 % Aero 421 Group Assignment 6
 
-clear all; close all; clc
+clear; close all; clc
 format long g
 %% Set Up
 %It works!
