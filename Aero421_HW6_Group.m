@@ -20,7 +20,7 @@ ta = 0; %deg (true anomaly)
 
 [Ri,Vi] = coes2rv(h,mu,ecc,ta,RAAN,inc,w);
 
-w_bi = [0 -0.001047 0]; % (rad/s)initial in body frame
+w_bi = [0; -0.001047; 0]; % (rad/s)initial in body frame
 
 eps = [0 0 0];
 eta = 1;
@@ -112,10 +112,17 @@ disp('----------------------------')
 disp('Problem 2')
 disp('----------------------------')
 
-
-
 %part a)
 init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
+
+%initial angular momentum
+h_i=I*w_bi; %[kg*m^2/s] (3x1)
+
+%initial angular velocity (cross)
+w_b_cross=cross_matrix(w_bi); %rad/s
+
+%angular velocity rate
+% wdot_b=(-w_b_cross*h_i)\I;
 
 %part b)
 
