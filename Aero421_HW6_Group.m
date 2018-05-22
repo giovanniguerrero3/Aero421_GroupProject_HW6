@@ -120,7 +120,7 @@ disp('----------------------------')
 
 %part d)
 % r is the r vector from the center of the earth to the center of the body?
-Tg = (3*mu)/(norm(r)^5)*r_cross*I*r; % Gravity Gradient Torque, taken from notes on April 10
+Tg = (3*mu)/(norm(r)^5)*cross(r,I*r); % Gravity Gradient Torque, taken from notes on April 10
 
 %part e)
 
