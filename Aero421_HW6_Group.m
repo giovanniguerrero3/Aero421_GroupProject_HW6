@@ -1,10 +1,10 @@
 % Giovanni Guerrero, Roberto Azarte, Chris Barta
 % Aero 421 Group Assignment 6
 
-clear all; close all; clc
+clear; close all; clc
 format long g
 %% Set Up
-% Roberto sucks
+%It works!
 %COES
 global mu I com 
 mu =398600;
