@@ -1,4 +1,4 @@
-% Giovanni Guerrero
+% Giovanni Guerrero, Roberto Azarte, Chris Barta
 % Aero 421 Group Assignment 6
 
 clear all; close all; clc
