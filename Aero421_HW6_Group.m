@@ -4,7 +4,7 @@
 clear all; close all; clc
 format long g
 %% Set Up
-
+%It works!
 %COES
 global mu I com 
 mu =398600;
