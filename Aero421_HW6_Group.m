@@ -215,15 +215,164 @@ ta = deg2rad(ta); %rad (true anomaly)
 % Object Location at Epoch
 [ ~, ~, ri_epoch, vi_epoch ] = Locate( ecc, inc, RAAN, w, ta, h );
 
+%% Functions
 
+%function to be integrated using ode 45
+function state_out=ode_funct(t,state,T,I)
 
+%euler angles
+eu_ang=[state(4);state(5);state(6)];
 
+%rotation matrix
+C21=rotation_mtrx(eu_ang);
 
+%quaternion
+q=quat(C21);
 
+%angular velocity
+ang_vel=[state(1);state(2);state(3)];
 
+%angular velocity rates
+ang_vel_rates=euler_eqns(ang_vel,I,T);
 
+%euler angle rates
+eu_ang_rates=euler_rates(eu_ang,ang_vel);
 
+%quaternion rates
+q_rates=quat_rates(q,ang_vel);
 
+%output state vector
+state_out=[ang_vel_rates;eu_ang_rates;q_rates];
 
+end
 
+%calculate rotation matrix
+function C21=rotation_mtrx(ang)
 
+Cx=[1 0 0; 0 cos(ang(1,1)) sin(ang(1,1)); 0 -sin(ang(1,1)) cos(ang(1,1))];
+Cy=[cos(ang(2,1)) 0 -sin(ang(2,1)); 0 1 0; sin(ang(2,1)) 0 cos(ang(2,1))];
+Cz=[cos(ang(3,1)) sin(ang(3,1)) 0; -sin(ang(3,1)) cos(ang(3,1)) 0; 0 0 1];
+
+%3-2-1 rotation matrix
+C21=Cx*Cy*Cz;
+
+end
+
+%calculate quaternion
+function q=quat(C21)
+
+%eta
+eta=sqrt(trace(C21)+1)/2;
+
+%epsilon components
+e1=(C21(2,3)-C21(3,2))/(4*eta);
+e2=(C21(3,1)-C21(1,3))/(4*eta);
+e3=(C21(1,2)-C21(2,1))/(4*eta);
+
+%epsilon
+eps=[e1;e2;e3];
+
+%quaternion
+q=[eps;eta];
+
+end
+
+%angular velocity rates
+function ang_vel_rates=euler_eqns(w,I,T)
+
+%euler equations
+w_dx=(T(1,1)+w(2,1)*w(3,1)*(I(2,2)-I(3,3)))/I(1,1);
+w_dy=(T(2,1)+w(1,1)*w(3,1)*(I(3,3)-I(1,1)))/I(2,2);
+w_dz=(T(3,1)+w(1,1)*w(2,1)*(I(1,1)-I(2,2)))/I(3,3);
+
+%equations as column vector
+ang_vel_rates=[w_dx;w_dy;w_dz];
+
+end
+
+%calculates euler angle rates
+function eu_ang_rates=euler_rates(angles,w)
+
+eu_ang_rates=...
+    [1 sin(angles(1))*tan(angles(2)) cos(angles(1))*tan(angles(2)); 
+    0 cos(angles(1)) -sin(angles(1)); 
+    0 sin(angles(1))/cos(angles(2)) cos(angles(1))/cos(angles(2))]*w;
+
+end
+
+%calculates eta dot & epsilon dot
+function q_rates=quat_rates(q,w)
+
+%epsilon cross
+eps_x=[0 -q(3,1) q(2); q(3,1) 0 -q(1,1); -q(2,1) q(1,1) 0];
+
+%eta dot
+eta_d=-0.5*q(1:3,1)'*w;
+
+%epsilon dot
+eps_d=0.5*(q(4,1)*eye(3)+eps_x)*w;
+
+%quaternion rate function
+q_rates=[eps_d;eta_d];
+
+end
+
+%solar pressure torque
+function T_s=sol_press_torq(s_vect)
+
+%top surfaces (normal vectors)
+n_top=[0; 0; -1];
+
+%bottom surfaces (normal vectors)
+n_bot=[0; 0; 1];
+
+%front and back
+n_f=[1; 0; 0];
+n_b=[-1; 0; 0];
+
+%sides
+n_l=[0; -1; 0];
+n_r=[0; 1; 0];
+
+%normal vector, vector
+n=[n_top n_top n_top n_bot n_bot n_bot n_f n_b n_l n_r];
+
+%position vectors
+a=0.234375; %m
+b=0.7656; %m
+c=1.7656; %m
+d=2.5; %m
+top_c=[0;0;-c];
+bot_c=[0;0;b];
+front_c=[1;0;-a];
+back_c=[-1;0;-a];
+l_side_c=[0;-1;-a];
+r_side_c=[0;1;-a];
+l_sol_p_top=[0;-d;-a];
+l_sol_p_bot=[0;-d;-a];
+r_sol_p_top=[0;d;-a];
+r_sol_p_bot=[0;d;-a];
+
+%position relative to com, vector
+rho=[top_c l_sol_p_top r_sol_p_top bot_c l_sol_p_bot r_sol_p_bot...
+    front_c back_c l_side_c r_sidec];
+
+%photon momentum
+p=4.5e-6; %N*m^-2
+
+%spacecraft areas
+A_c=4; %m^2
+A_p=6; %m^2
+
+A=[A_c A_p A_p A_c A_p A_p A_c A_c A_c A_c];
+
+nds=dot(n,s);
+
+if nds>=0
+
+T_s=cross(rho,-p.*A*nds*s);
+
+else
+    T_s=0;
+
+end
