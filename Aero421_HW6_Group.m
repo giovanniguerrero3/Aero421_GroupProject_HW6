@@ -1,12 +1,12 @@
-% Giovanni Guerrero, Roberto Azarte, Chris Barta
-% Aero 421 Group Assignment 6
+% Giovanni Guerrero, Roberto Azarte, Chris Barta Aero 421 Group Assignment
+% 6
 
 clear; close all; clc
 format long g
 %% Set Up
 
 %COES
-global mu I com 
+global mu I com
 mu =398600;
 
 period = 100*60; %period in seconds (100 mins);
@@ -29,12 +29,12 @@ Cd = 2.1; %coefficient of drag
 
 eps = [0 0 0];
 eta = 1;
-    
+
 q = [eps eta]'; %"not initial quaternion"
 
 %simplified density, drag, solar pressure, and earth magnetic field models
 
-% Spacecraft properties 
+% Spacecraft properties
 c_m = 500; %kg
 c_sx = 2; %m, side of cube
 c_sy = 2;
@@ -52,7 +52,7 @@ s_sy = 0.25; %length in y
 
 s_dx = 1.265625; % center of sensor to center of bus
 s_dy = 1.265625;
-s_dz = 0; 
+s_dz = 0;
 
 % Solar Panels (accounting for both)
 p_x = 2; %x and y solar panel face
@@ -73,8 +73,7 @@ disp('----------------------------')
 m = c_m+s_m+2*p_m;
 
 
-%Calculating inertias relative to total COM
-%Bus Cube
+%Calculating inertias relative to total COM Bus Cube
 c_Ix = (c_m/12)*(c_sy^2+c_sz^2);
 c_Iy = (c_m/12)*(c_sx^2+c_sz^2);
 c_Iz = (c_m/12)*(c_sy^2+c_sx^2);
@@ -106,9 +105,9 @@ disp('----------------------------')
 %Note: Origin of body frame is at center of bus
 
 %Center of mass (relative to center of bus(done on board))
- com = [0,0,0.23437];
- com = [0 0 0; 0 0 0; 0 0 0.23437]; %is this the 3D one?
- 
+% com = [0,0,0.23437];
+com = [0 0 0; 0 0 0; 0 0 0.23437]; %is this the 3D one?
+
 %Geometric Center (relative to center of bus(done on paper))
 
 
@@ -116,34 +115,30 @@ disp('----------------------------')
 
 disp('Problem 2')
 disp('----------------------------')
-% 
-% %part a)
-% init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
-% 
-% 
-% %initial angular momentum
-% h_i=I*w_bi; %[kg*m^2/s] (3x1)
-% 
-% %initial angular velocity (cross)
-% w_b_cross=cross_matrix(w_bi); %rad/s
-% 
-% %kinematics
-% vect = [ init_theta 0 0];
-% [c21_matrix] = rot321(vect);
-% wbi_x = cross_matrix(w_bi);
-% 
+%
+% %part a) init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of
+% orbit between Xb and Zeci
+%
+%
+% %initial angular momentum h_i=I*w_bi; %[kg*m^2/s] (3x1)
+%
+% %initial angular velocity (cross) w_b_cross=cross_matrix(w_bi); %rad/s
+%
+% %kinematics vect = [ init_theta 0 0]; [c21_matrix] = rot321(vect); wbi_x
+% = cross_matrix(w_bi);
+%
 % Cbi_dot = -wbi_x*c21_matrix;
-% 
+%
 %part b)
 Fd_panel = (1/2)*rho*Cd*a_panel*norm(Vi)^2;
 Fd_body = (1/2)*rho*Cd*a_body*norm(Vi)^2;
 
 % %part c)
-% 
-% %part d)
-% % r is the r vector from the center of the earth to the center of the body?
-% Tg = (3*mu)/(norm(r)^5)*cross(r,I*r); % Gravity Gradient Torque, taken from notes on April 10
-% 
+%
+% %part d) % r is the r vector from the center of the earth to the center
+% of the body? Tg = (3*mu)/(norm(r)^5)*cross(r,I*r); % Gravity Gradient
+% Torque, taken from notes on April 10
+%
 % %part e)
 
 
@@ -163,8 +158,8 @@ R_state = [states_orbit(:,1),states_orbit(:,2),states_orbit(:,3)];
 V_state = [states_orbit(:,4),states_orbit(:,5),states_orbit(:,6)];
 time_state = t_orbit;
 
-figure 
-hold on 
+figure
+hold on
 plot3(rstart(1),rstart(2),rstart(3),'x','Color','r','linewidth',5)
 plot3(states_orbit(:,1), states_orbit(:,2), states_orbit(:,3), 'Color', 'r')
 grid on
@@ -188,9 +183,8 @@ rivers = shaperead('worldrivers','UseGeoCoords',true);
 plotm([rivers.Lat],[rivers.Lon],'Color','blue')
 
 
-%% March 20, 2018 at 12 UTC: Julian Date and Epoch Location  
-% Calculate Julian Date of epoch
-% Epoch = 17325.34312598 
+%% March 20, 2018 at 12 UTC: Julian Date and Epoch Location
+% Calculate Julian Date of epoch Epoch = 17325.34312598
 y=2017;              % year
 m=11;                % month
 d=21;                % day
@@ -200,12 +194,12 @@ UT=.34312598*24;     % UT
 % Mission Start Date: Spring Equinox: March 20, 2018, UT=12 (noon)
 [ J0start, JDstart ] = UTtoJD( 2018,3,20,12 );
 
-dJD1=JDstart-JD1; 
+dJD1=JDstart-JD1;
 JD2sec=.864/0.00001;    % conversion factor from julian days to seconds
 dt1=dJD1*JD2sec;        % time from epoch to start date (March 20, 2018)
 
 % Locating Epoch (start)
-%COES have to be in radians for Locate function. 
+%COES have to be in radians for Locate function.
 h = 53335.2; %km^2/s (angular momentum)
 ecc = deg2rad(ecc); %rad eccentricity)
 RAAN = deg2rad(RAAN); %rad
@@ -229,6 +223,8 @@ C21=rotation_mtrx(eu_ang);
 %quaternion
 q=quat(C21);
 
+T_s=sol_press_torq(s_vect);
+
 %angular velocity
 ang_vel=[state(1);state(2);state(3)];
 
@@ -242,7 +238,7 @@ eu_ang_rates=euler_rates(eu_ang,ang_vel);
 q_rates=quat_rates(q,ang_vel);
 
 %output state vector
-state_out=[ang_vel_rates;eu_ang_rates;q_rates];
+state_out=[T_s;ang_vel_rates;eu_ang_rates;q_rates];
 
 end
 
@@ -294,8 +290,8 @@ end
 function eu_ang_rates=euler_rates(angles,w)
 
 eu_ang_rates=...
-    [1 sin(angles(1))*tan(angles(2)) cos(angles(1))*tan(angles(2)); 
-    0 cos(angles(1)) -sin(angles(1)); 
+    [1 sin(angles(1))*tan(angles(2)) cos(angles(1))*tan(angles(2));
+    0 cos(angles(1)) -sin(angles(1));
     0 sin(angles(1))/cos(angles(2)) cos(angles(1))/cos(angles(2))]*w;
 
 end
@@ -355,7 +351,7 @@ r_sol_p_bot=[0;d;-a];
 
 %position relative to com, vector
 rho=[top_c l_sol_p_top r_sol_p_top bot_c l_sol_p_bot r_sol_p_bot...
-    front_c back_c l_side_c r_sidec];
+    front_c back_c l_side_c r_side_c];
 
 %photon momentum
 p=4.5e-6; %N*m^-2
@@ -369,10 +365,12 @@ A=[A_c A_p A_p A_c A_p A_p A_c A_c A_c A_c];
 nds=dot(n,s);
 
 if nds>=0
-
-T_s=cross(rho,-p.*A*nds*s);
-
+    
+    T_s=cross(rho,-p.*A*nds*s);
+    
 else
     T_s=0;
+    
+end
 
 end
