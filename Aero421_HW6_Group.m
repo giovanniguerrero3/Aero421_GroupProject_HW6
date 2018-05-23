@@ -111,33 +111,33 @@ disp('----------------------------')
 
 disp('Problem 2')
 disp('----------------------------')
-
-%part a)
-init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
-
-
-%initial angular momentum
-h_i=I*w_bi; %[kg*m^2/s] (3x1)
-
-%initial angular velocity (cross)
-w_b_cross=cross_matrix(w_bi); %rad/s
-
-%kinematics
-vect = [ init_theta 0 0];
-[c21_matrix] = rot321(vect);
-wbi_x = cross_matrix(w_bi);
-
-Cbi_dot = -wbi_x*c21_matrix;
-
-%part b)
-
-%part c)
-
-%part d)
-% r is the r vector from the center of the earth to the center of the body?
-Tg = (3*mu)/(norm(r)^5)*cross(r,I*r); % Gravity Gradient Torque, taken from notes on April 10
-
-%part e)
+% 
+% %part a)
+% init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
+% 
+% 
+% %initial angular momentum
+% h_i=I*w_bi; %[kg*m^2/s] (3x1)
+% 
+% %initial angular velocity (cross)
+% w_b_cross=cross_matrix(w_bi); %rad/s
+% 
+% %kinematics
+% vect = [ init_theta 0 0];
+% [c21_matrix] = rot321(vect);
+% wbi_x = cross_matrix(w_bi);
+% 
+% Cbi_dot = -wbi_x*c21_matrix;
+% 
+% %part b)
+% 
+% %part c)
+% 
+% %part d)
+% % r is the r vector from the center of the earth to the center of the body?
+% Tg = (3*mu)/(norm(r)^5)*cross(r,I*r); % Gravity Gradient Torque, taken from notes on April 10
+% 
+% %part e)
 
 
 %% Propogate and Plot
