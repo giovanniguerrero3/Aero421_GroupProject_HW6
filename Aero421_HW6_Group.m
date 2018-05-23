@@ -137,7 +137,7 @@ Fd_body = (1/2)*rho*Cd*a_body*norm(Vi)^2;
 %
 % %part e)
 
-%% Propogate and PLot Orbit for R,V states with time
+%% Propogate and Plot Orbit for R,V states with time
 
 % Plotting 1 period and marking starting point
 statei = [Ri Vi];
@@ -182,14 +182,7 @@ disp('----------------------------')
 % 
 %--------------------------- Part A--------------------------------------
 % init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
-% 
-% 
-% %initial angular momentum
-% h_i=I*w_bi; %[kg*m^2/s] (3x1)
-% 
-% %initial angular velocity (cross)
-% w_b_cross=cross_matrix(w_bi); %rad/s
-% 
+
 % %kinematics
 % vect = [ init_theta 0 0];
 % [c21_matrix] = rot321(vect);
@@ -211,9 +204,8 @@ x_lvlh = cross(y_lvlh,z_lvlh);
 
 F_lvlh = [x_lvlh'; y_lvlh'; z_lvlh'];
 
-C_lvlh_eci = F_lvlh.*F_eci_i';
+C_lvlh_eci = F_lvlh*F_eci_i';
 C21 = C_lvlh_eci;
-
 
 %Finding initial quaternion with initial C21----
 eta_i = (sqrt(trace(C21)+1))/2;
@@ -223,14 +215,17 @@ eps3_i = (C21(1,2)-C21(2,1))/(4*eta_i);
 
 q_i = [eta_i eps1_i eps2_i eps3_i]';
 
-
 %Finding initial Principle Rotations---
 phi_i = atan2(C21(2,3),C21(3,3));
 theta_i = -asin(C21(1,3));
 psi_i = atan2(C21(1,2),C21(1,1));
+eul_ECI_i=[phi_i;theta_i;psi_i];
 
 %just saying that initial W_b_lvlh_body is 0 0 0 since it doesnt matter
 W_b_lvlh_body =[0;0;0]; %really not all 0's but very close to all 0's
+
+%initial euler angles in LVLH
+eul_LVLH_i=[0;0;0;];
 
 %recalling initial angular velocity in body frame
 w_i = [0; -0.001047; 0]; % (rad/s)initial in body frame
@@ -240,7 +235,10 @@ w_i = [0; -0.001047; 0]; % (rad/s)initial in body frame
 % % Euler Angles - phi, theta, and psi
 % euler_i = quat2eul(q_i)
 
-state = [phi_i;theta_i;psi_i;w_i;q_i;r_eci_i;v_eci_i;0;0;0;0;0;0];
+% state = [phi_i;theta_i;psi_i;w_i;q_i;r_eci_i;v_eci_i;0;0;0;0;0;0];
+
+
+state = [eul_ECI_i;w_i;q_i;r_eci_i;v_eci_i;eul_LVLH_i;W_b_lvlh_body];
 
 
 
@@ -294,6 +292,13 @@ ta = deg2rad(ta); %rad (true anomaly)
 
 %function to be integrated using ode 45
 function state_out=ode_funct(t,state,T,I)
+
+% state = [eul_ECI_i;w_i;q_i;r_eci_i;v_eci_i;eul_LVLH_i;W_b_lvlh_body];
+%{
+1.)
+
+
+%}
 
 %euler angles
 eu_ang=[state(4);state(5);state(6)];
