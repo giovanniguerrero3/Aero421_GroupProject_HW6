@@ -22,6 +22,11 @@ ta = 0; %deg (true anomaly)
 
 w_bi = [0; -0.001047; 0]; % (rad/s)initial in body frame
 
+rho = 1.139; %kg/m^3
+a_panel = 3*2; %[m^2]
+a_body = 2^2; %[m^2]
+Cd = 2.1; %coefficient of drag
+
 eps = [0 0 0];
 eta = 1;
     
@@ -129,8 +134,10 @@ disp('----------------------------')
 % 
 % Cbi_dot = -wbi_x*c21_matrix;
 % 
-% %part b)
-% 
+%part b)
+Fd_panel = (1/2)*rho*Cd*a_panel*norm(Vi)^2;
+Fd_body = (1/2)*rho*Cd*a_body*norm(Vi)^2;
+
 % %part c)
 % 
 % %part d)
