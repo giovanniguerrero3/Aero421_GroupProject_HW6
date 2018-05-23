@@ -41,7 +41,7 @@ c_sy = 2;
 c_sz = 2;
 
 c_dz = 0;
-c_dy = 0.234375;x
+c_dy = 0.234375;
 c_dx = 0.234375;
 
 %sensors
@@ -162,10 +162,6 @@ rstart = [states_orbit(end,1),states_orbit(end,2),states_orbit(end,3)]; %basical
 R_state = [states_orbit(:,1),states_orbit(:,2),states_orbit(:,3)];
 V_state = [states_orbit(:,4),states_orbit(:,5),states_orbit(:,6)];
 time_state = t_orbit;
-figure
-plot(time_state,R_state)
-figure
-plot(time_state,V_state)
 
 figure 
 hold on 
