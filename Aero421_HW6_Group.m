@@ -245,25 +245,57 @@ tspan = [0 100*60*10];
 options = odeset('RelTol',1e-8,'AbsTol',1e-8);
 [tnew statenew] = ode45(@ode_funct,tspan,state,options,I,torques,mu);
 
+%% ECI plots
+
 figure
 plot(tnew,statenew(:,1:3))
+title('Euler Angles (F_b to F_E_C_I) vs. Time')
+xlabel('Time [s]')
+ylabel('Euler Angle [rad]')
+legend('\phi - roll','\theta - pitch','\psi - yaw','location','east')
+grid on
 
 figure
 plot(tnew,statenew(:,4:6))
+title('Angular Velocity (F_b rel. to F_E_C_I) vs. Time')
+xlabel('Time [s]')
+ylabel('Angular Velocity [rad/s]')
+legend('\omega_x','\omega_y','\omega_z','location','east')
+grid on
 
 figure
 plot(tnew,statenew(:,7:10))
+title('Quaternions (F_b to F_E_C_I) vs. Time')
+xlabel('Time [s]')
+ylabel('Quaternion Magnitude')
+legend('\epsilon_x','\epsilon_y','\epsilon_z','\eta','location','east')
+grid on
 
-%%
+%% LVLH plots
+
 figure
 plot(tnew,statenew(:,17:19))
+title('Euler Angles (F_b to F_L_V_L_H) vs. Time')
+xlabel('Time [s]')
+ylabel('Euler Angle [rad]')
+legend('\phi - roll','\theta - pitch','\psi - yaw')
+grid on
 
 figure
 plot(tnew,statenew(:,20:22))
+title('Angular Velocity (F_b rel. to F_L_V_L_H)  vs. Time')
+xlabel('Time [s]')
+ylabel('Angular Velocity [rad/s]')
+legend('\omega_x','\omega_y','\omega_z')
+grid on
 
 figure
 plot(tnew,statenew(:,23:26))
-
+title('Quaternions (F_b to F_L_V_L_H) vs. Time')
+xlabel('Time [s]')
+ylabel('Quaternion Magnitude')
+legend('\epsilon_x','\epsilon_y','\epsilon_z','\eta')
+grid on
 
 
 %--------------------------- Part B--------------------------------------
