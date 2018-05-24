@@ -1,5 +1,5 @@
-% Giovanni Guerrero, Roberto Azarte, Chris Barta Aero 421 Group Assignment
-% 6
+% AERO 421 Group Assignment 6
+% (Giovanni Guerrero, Roberto Azarte, Chris Barta)
 
 clear; close all; clc
 format long g
@@ -7,12 +7,12 @@ format long g
 
 %COES
 global mu I com
-mu =398600;
+mu =398600; %km^3/s^2
 
 period = 100*60; %period in seconds (100 mins);
 
 h = 53335.2; %km^2/s (angular momentum)
-ecc = 0; %eccentricity)
+ecc = 0; %eccentricity
 RAAN = 0; %deg
 inc = 98.43; %deg (inclination)
 w = 0; %deg (omega (argument of periapsis))
@@ -26,11 +26,6 @@ rho = 1.139; %kg/m^3
 a_panel = 3*2; %[m^2]
 a_body = 2^2; %[m^2]
 Cd = 2.1; %coefficient of drag
-
-eta_i = 1;
-eps_i = [0 0 0];
-%CAUTION: Matlab does quaternion orders as [eta eps1 eps2 eps3]; 
-q_i = [eta_i eps_i]'; 
 
 %simplified density, drag, solar pressure, and earth magnetic field models
 
@@ -93,16 +88,15 @@ I_p = 2*[p_Ix+p_m*p_dx^2 0 0;0 p_Iy+p_m*p_dy^2 0;0 0 p_Iz+p_m*p_dz^2];
 %total Inertia of s/c
 I = I_c+I_p+I_s;
 
-disp(['Mass of spacecraft is ',num2str(m),' kg'])
+disp(['The total mass of spacecraft is ',num2str(m),' kg.'])
 disp(' ')
-disp(['Inertia of spacecraft is ',mat2str(I),' kg*m^2']);
+disp(['The inertia matrix for the spacecraft is ',mat2str(I),' kg*m^2']);
 disp(' ')
 disp('----------------------------')
 
-%Note: Origin of body frame is at center of bus
+%Note: Origin of body frame is a bit below the center of bus
 
 %Center of mass (relative to center of bus(done on board))
-% com = [0,0,0.23437];
 com = [0 0 0; 0 0 0; 0 0 0.23437]; %is this the 3D one?
 
 %Geometric Center (relative to center of bus(done on paper))
@@ -114,7 +108,6 @@ disp('----------------------------')
 %
 % %part a) init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of
 % orbit between Xb and Zeci
-%
 %
 % %initial angular momentum h_i=I*w_bi; %[kg*m^2/s] (3x1)
 %
@@ -140,11 +133,13 @@ Fd_body = (1/2)*rho*Cd*a_body*norm(Vi)^2;
 %% Propogate and Plot Orbit for R,V states with time
 
 % Plotting 1 period and marking starting point
-statei = [Ri Vi];
+state_i = [Ri Vi];
 tspan = [0 period];
+
+%ode options
 options = odeset('RelTol', 1e-8, 'AbsTol', 1e-8);
 
-[t_orbit,states_orbit] = ode45(@propogate_func, tspan, statei, options, mu);
+[t_orbit,states_orbit] = ode45(@propogate_func, tspan, state_i, options, mu);
 
 rstart = [states_orbit(1,1),states_orbit(1,2),states_orbit(1,3)]; %basically Ri
 
