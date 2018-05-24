@@ -311,6 +311,27 @@ ta = deg2rad(ta); %rad (true anomaly)
 % Object Location at Epoch
 [ ~, ~, ri_epoch, vi_epoch ] = Locate( ecc, inc, RAAN, w, ta, h );
 
+%% 3. Plot the total angular momentum accumulated by the spacecraft during the DITL.
+
+%angular velocity (from ode45)
+ang_vel=statenew(:,4:6)'; %1/s
+
+%angular momentum
+h=I*ang_vel; %km^2/s
+
+h_total=cumsum(h,2); %km^2/s
+
+%total accumulated angular momentum
+figure
+plot(tnew,h_total)
+title('Total Accumulated Angular Momentum vs. Time')
+xlabel('Time [s]')
+ylabel('Angular Momentum [km^2/s]')
+legend('h_x','h_y','h_z')
+grid on
+
+disp(' ')
+
 %% Functions
 
 %function to be integrated using ode 45
