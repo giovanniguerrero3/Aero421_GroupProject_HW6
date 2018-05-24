@@ -3,6 +3,7 @@
 
 clear; close all; clc
 format long g
+
 %% Set Up
 
 %COES
@@ -220,7 +221,7 @@ eul_ECI_i=[phi_i;theta_i;psi_i];
 W_b_lvlh_body =[0;0;0]; %really not all 0's but very close to all 0's
 
 %initial euler angles in LVLH
-eul_LVLH_i=[0;0;0;];
+eul_LVLH_i=[0;0;0];
 
 %recalling initial angular velocity in body frame
 w_i = [0; -0.001047; 0]; % (rad/s)initial in body frame
@@ -230,16 +231,16 @@ w_i = [0; -0.001047; 0]; % (rad/s)initial in body frame
 % % Euler Angles - phi, theta, and psi
 % euler_i = quat2eul(q_i)
 
-% state = [phi_i;theta_i;psi_i;w_i;q_i;r_eci_i;v_eci_i;0;0;0;0;0;0];
-
 %initial quaternion (LVLH)
 quat_i=[0;0;0;1];
 
 state = [eul_ECI_i;w_i;q_i;r_eci_i;v_eci_i;eul_LVLH_i;W_b_lvlh_body;quat_i];
 
-torques = 'yes';
+% torques = 'yes';
+torques = 'no';
 
 %% call to ode
+
 tspan = [0 100*60*10];
 options = odeset('RelTol',1e-8,'AbsTol',1e-8);
 [tnew statenew] = ode45(@ode_funct,tspan,state,options,I,torques,mu);
@@ -318,22 +319,25 @@ function state_out=ode_funct(t,state,I, torques,mu)
 % state = [eul_ECI_i;w_i;q_i;r_eci_i;v_eci_i;eul_LVLH_i;W_b_lvlh_body;quat_i];
 
 %% states rel to eci
-eu_ang_eci=[state(1);state(2);state(3)];
+
+eu_ang_eci = state(1:3);
 
 % angular vel rel to eci
-w_b_eci  = state(4:6);
+w_b_eci = state(4:6);
 
 % quaternion rel to eci
 q_b_eci = state(7:10);
 
 vel_eci = state(14:16);
 r_eci = state(11:13);
+
 %% states rel to lvlh
+
 %euler angles rel to eci
 eu_ang_lvlh=[state(17);state(18);state(19)];
 
 % angular vel rel to eci
-w_b_lvlh  = state(20:22);
+w_b_lvlh = state(20:22);
 
 % quaternion rel to eci
 q_b_lvlh= state(23:26);
@@ -358,11 +362,13 @@ else
 end
 
 %% calcs relative to eci
+
 euler_rates_b_eci = euler_rates(eu_ang_eci,w_b_eci);
 w_b_eci_dot = euler_eqns(w_b_eci,I,T_total);
 q_rates_b_eci  = quat_rates(q_b_eci,w_b_eci);
 
 %% calcs relative to lvlh
+
 euler_rates_b_lvlh= euler_rates(eu_ang_lvlh,w_b_lvlh);
 w_b_lvlh_dot = euler_eqns(w_b_lvlh,I,T_total);
 q_rates_b_lvlh  = quat_rates(q_b_lvlh,w_b_lvlh);
@@ -370,6 +376,7 @@ q_rates_b_lvlh  = quat_rates(q_b_lvlh,w_b_lvlh);
 %% orbital acceleration
 
 acc_eci = -mu*r_eci/norm(r_eci)^3;
+
 %output state vector
 state_out=[euler_rates_b_eci;w_b_eci_dot;q_rates_b_eci;vel_eci;acc_eci;euler_rates_b_lvlh;...
     w_b_lvlh_dot;q_rates_b_lvlh];
@@ -385,25 +392,6 @@ Cz=[cos(ang(3,1)) sin(ang(3,1)) 0; -sin(ang(3,1)) cos(ang(3,1)) 0; 0 0 1];
 
 %3-2-1 rotation matrix
 C21=Cx*Cy*Cz;
-
-end
-
-%calculate quaternion
-function q=quat(C21)
-
-%eta
-eta=sqrt(trace(C21)+1)/2;
-
-%epsilon components
-e1=(C21(2,3)-C21(3,2))/(4*eta);
-e2=(C21(3,1)-C21(1,3))/(4*eta);
-e3=(C21(1,2)-C21(2,1))/(4*eta);
-
-%epsilon
-eps=[e1;e2;e3];
-
-%quaternion
-q=[eps;eta];
 
 end
 
@@ -448,7 +436,7 @@ q_rates=[eps_d;eta_d];
 end
 
 %solar pressure torque
-function T_total=sol_press_torq(s_vect)
+function T_s_total=sol_press_torq(s_vect)
 
 %top surfaces (normal vectors)
 n_top=[0; 0; -1];
@@ -496,27 +484,31 @@ A_p=6; %m^2
 
 A=[A_c A_p A_p A_c A_p A_p A_c A_c A_c A_c];
 
-for i = 1:length(A)
-    nds=dot(n(:,i),s_vect);
+for j = 1:length(A)
+    nds=dot(n(:,j),s_vect);
 if nds >= 0
     
-    T_s(:,i)=cross(rho(:,i),-p.*A(i)*nds*s_vect);
+    T_s(:,j)=cross(rho(:,j),-p.*A(j)*nds*s_vect);
     
 else
-    T_s(:,i)= zeros(3,1);
+    T_s(:,j)= zeros(3,1);
     
 end
 
 end
 
-T_total = sum(T_s(:,:),2); % 3x1
+T_s_total = sum(T_s(:,:),2); % 3x1
 
 end
 
-function T_total=drag(vel_body)
+function T_d_total=drag(vel_body)
+
+%drag coefficient
 cd = 2.1;
 
+%air density
 dense = 1.19e-14;
+
 %top surfaces (normal vectors)
 n_top=[0; 0; -1];
 
@@ -560,19 +552,21 @@ A_p=6; %m^2
 
 A=[A_c A_p A_p A_c A_p A_p A_c A_c A_c A_c];
 
-for i = 1:length(A)
-    nds=dot(n(:,i),vel_body/norm(vel_body));
+for j = 1:length(A)
+    
+    nds=dot(n(:,j),vel_body/norm(vel_body));
+    
 if nds >= 0
     
-    T_s(:,i)=cross(rho(:,i),-1/2*cd*dense*norm(vel_body)^2*1000*nds*A(i)*vel_body/norm(vel_body));
+    T_d(:,j)=cross(rho(:,j),-1/2*cd*dense*norm(vel_body)^2*1000*nds*A(j)*vel_body/norm(vel_body));
     
 else
-    T_s(:,i)= zeros(3,1);
+    T_d(:,j)= zeros(3,1);
     
 end
 
 end
 
-T_total = sum(T_s(:,:),2); % 3x1
+T_d_total = sum(T_d(:,:),2); % 3x1
 
 end
