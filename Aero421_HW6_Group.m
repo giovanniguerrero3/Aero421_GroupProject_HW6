@@ -395,8 +395,22 @@ w_b_lvlh = state(20:22);
 % quaternion rel to eci
 q_b_lvlh= state(23:26);
 
-%% stuff needed
+% latitude/longitude for mag
+longitude = atan2d(r_eci(2),r_eci(1)) + t*(360/(24*60*60));
+if longitude > 180
+    longitude = longitude - 360;
+else if longitude < -180
+        longitude = longitude+360;
+    end
+end
+latitude = atan2d(r_eci(3),sqrt((r_eci(1)^2) + (r_eci(2)^2)));
+height = (norm(r_eci)-6378);
 
+% Magnetic Field Vector
+[B, ~, ~, ~, ~] = wrldmagm(height, latitude, longitude, 2017, '2017');
+
+%% stuff needed
+Smag = .05*[0,0,-1]; %given stuff from prompt
 %rotation matrix
 C21=rotation_mtrx(eu_ang_eci);
 s_b = C21*[1;0;0];
@@ -404,14 +418,18 @@ s_b = C21*[1;0;0];
 vel_body = C21*vel_eci;
 r_body = C21*r_eci;
 
+Bb = C21*B*10^-9; %Mag field eci -> body
+
 %% torques
+
 if strcmp(torques,'no')
     T_total = zeros(3,11);
 else
     T_s=sol_press_torq(s_b);
     T_d = drag(vel_body);
     T_g = 3*mu/norm(r_body)^5*cross(r_body,I*r_body);
-    T_total = T_s + T_d + T_g;
+    T_mag = cross(Smag,Bb);
+    T_total = T_s + T_d + T_g+T_mag;
 end
 
 %% calcs relative to eci
