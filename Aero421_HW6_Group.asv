@@ -72,13 +72,7 @@ disp('----------------------------')
 %total mass of s/c
 m = c_m+s_m+2*p_m;
 
-<<<<<<< HEAD
-
 %Calculating inertias relative to total COM Bus Cube
-=======
-%Calculating inertias relative to total COM
-%Bus Cube
->>>>>>> origin/master
 c_Ix = (c_m/12)*(c_sy^2+c_sz^2);
 c_Iy = (c_m/12)*(c_sx^2+c_sz^2);
 c_Iz = (c_m/12)*(c_sy^2+c_sx^2);
@@ -113,8 +107,6 @@ com = [0 0 0; 0 0 0; 0 0 0.23437]; %is this the 3D one?
 
 %Geometric Center (relative to center of bus(done on paper))
 
-
-<<<<<<< HEAD
 %% Problem 2
 
 disp('Problem 2')
@@ -145,11 +137,7 @@ Fd_body = (1/2)*rho*Cd*a_body*norm(Vi)^2;
 %
 % %part e)
 
-
-%% Propogate and Plot
-=======
-%% Propogate and PLot Orbit for R,V states with time
->>>>>>> origin/master
+%% Propogate and Plot Orbit for R,V states with time
 
 % Plotting 1 period and marking starting point
 statei = [Ri Vi];
@@ -194,14 +182,7 @@ disp('----------------------------')
 % 
 %--------------------------- Part A--------------------------------------
 % init_theta = atan(Vi(2)/Vi(3)); %[rad] angle at the beginning of orbit between Xb and Zeci
-% 
-% 
-% %initial angular momentum
-% h_i=I*w_bi; %[kg*m^2/s] (3x1)
-% 
-% %initial angular velocity (cross)
-% w_b_cross=cross_matrix(w_bi); %rad/s
-% 
+
 % %kinematics
 % vect = [ init_theta 0 0];
 % [c21_matrix] = rot321(vect);
@@ -223,9 +204,8 @@ x_lvlh = cross(y_lvlh,z_lvlh);
 
 F_lvlh = [x_lvlh'; y_lvlh'; z_lvlh'];
 
-C_lvlh_eci = F_lvlh.*F_eci_i';
+C_lvlh_eci = F_lvlh*F_eci_i';
 C21 = C_lvlh_eci;
-
 
 %Finding initial quaternion with initial C21----
 eta_i = (sqrt(trace(C21)+1))/2;
@@ -233,16 +213,19 @@ eps1_i = (C21(2,3)-C21(3,2))/(4*eta_i);
 eps2_i = (C21(3,1)-C21(1,3))/(4*eta_i);
 eps3_i = (C21(1,2)-C21(2,1))/(4*eta_i);
 
-q_i = [eta_i eps1_i eps2_i eps3_i]';
-
+q_i = [eps1_i eps2_i eps3_i eta_i]';
 
 %Finding initial Principle Rotations---
 phi_i = atan2(C21(2,3),C21(3,3));
 theta_i = -asin(C21(1,3));
 psi_i = atan2(C21(1,2),C21(1,1));
+eul_ECI_i=[phi_i;theta_i;psi_i];
 
 %just saying that initial W_b_lvlh_body is 0 0 0 since it doesnt matter
 W_b_lvlh_body =[0;0;0]; %really not all 0's but very close to all 0's
+
+%initial euler angles in LVLH
+eul_LVLH_i=[0;0;0;];
 
 %recalling initial angular velocity in body frame
 w_i = [0; -0.001047; 0]; % (rad/s)initial in body frame
@@ -252,8 +235,38 @@ w_i = [0; -0.001047; 0]; % (rad/s)initial in body frame
 % % Euler Angles - phi, theta, and psi
 % euler_i = quat2eul(q_i)
 
-state = [phi_i;theta_i;psi_i;w_i;q_i;r_eci_i;v_eci_i;0;0;0;0;0;0];
+% state = [phi_i;theta_i;psi_i;w_i;q_i;r_eci_i;v_eci_i;0;0;0;0;0;0];
 
+%initial quaternion (LVLH)
+quat_i=[0;0;0;1];
+
+state = [eul_ECI_i;w_i;q_i;r_eci_i;v_eci_i;eul_LVLH_i;W_b_lvlh_body;quat_i];
+
+torques = 'yes';
+
+%% call to ode
+tspan = [0 100*60*10];
+options = odeset('RelTol',1e-8,'AbsTol',1e-8);
+[tnew statenew] = ode45(@ode_funct,tspan,state,options,I,torques,mu);
+
+figure
+plot(tnew,statenew(:,1:3))
+
+figure
+plot(tnew,statenew(:,4:6))
+
+figure
+plot(tnew,statenew(:,7:10))
+
+%%
+figure
+plot(tnew,statenew(:,17:19))
+
+figure
+plot(tnew,statenew(:,20:22))
+
+figure
+plot(tnew,statenew(:,23:26))
 
 
 
@@ -302,37 +315,67 @@ ta = deg2rad(ta); %rad (true anomaly)
 % Object Location at Epoch
 [ ~, ~, ri_epoch, vi_epoch ] = Locate( ecc, inc, RAAN, w, ta, h );
 
-<<<<<<< HEAD
 %% Functions
 
 %function to be integrated using ode 45
-function state_out=ode_funct(t,state,T,I)
+function state_out=ode_funct(t,state,I, torques,mu)
 
-%euler angles
-eu_ang=[state(4);state(5);state(6)];
+% state = [eul_ECI_i;w_i;q_i;r_eci_i;v_eci_i;eul_LVLH_i;W_b_lvlh_body;quat_i];
+
+%% states rel to eci
+eu_ang_eci=[state(1);state(2);state(3)];
+
+% angular vel rel to eci
+w_b_eci  = state(4:6);
+
+% quaternion rel to eci
+q_b_eci = state(7:10);
+
+vel_eci = state(14:16);
+r_eci = state(11:13);
+%% states rel to lvlh
+%euler angles rel to eci
+eu_ang_lvlh=[state(17);state(18);state(19)];
+
+% angular vel rel to eci
+w_b_lvlh  = state(20:22);
+
+% quaternion rel to eci
+q_b_lvlh= state(23:26);
+
+%% stuff needed
 
 %rotation matrix
-C21=rotation_mtrx(eu_ang);
+C21=rotation_mtrx(eu_ang_eci);
+s_b = C21*[1;0;0];
 
-%quaternion
-q=quat(C21);
+vel_body = C21*vel_eci;
+r_body = C21*r_eci;
 
-T_s=sol_press_torq(s_vect);
+%% torques
+if strcmp(torques,'no')
+    T_total = zeros(3,11);
+else
+    T_s=sol_press_torq(s_b);
+    T_total = T_s;
+end
 
-%angular velocity
-ang_vel=[state(1);state(2);state(3)];
+%% calcs relative to eci
+euler_rates_b_eci = euler_rates(eu_ang_eci,w_b_eci);
+w_b_eci_dot = euler_eqns(w_b_eci,I,T_total);
+q_rates_b_eci  = quat_rates(q_b_eci,w_b_eci);
 
-%angular velocity rates
-ang_vel_rates=euler_eqns(ang_vel,I,T);
+%% calcs relative to lvlh
+euler_rates_b_lvlh= euler_rates(eu_ang_lvlh,w_b_lvlh);
+w_b_lvlh_dot = euler_eqns(w_b_lvlh,I,T_total);
+q_rates_b_lvlh  = quat_rates(q_b_lvlh,w_b_lvlh);
 
-%euler angle rates
-eu_ang_rates=euler_rates(eu_ang,ang_vel);
+%% orbital acceleration
 
-%quaternion rates
-q_rates=quat_rates(q,ang_vel);
-
+acc_eci = -mu*r_eci/norm(r_eci)^3;
 %output state vector
-state_out=[T_s;ang_vel_rates;eu_ang_rates;q_rates];
+state_out=[euler_rates_b_eci;w_b_eci_dot;q_rates_b_eci;vel_eci;acc_eci;euler_rates_b_lvlh;...
+    w_b_lvlh_dot;q_rates_b_lvlh];
 
 end
 
@@ -358,11 +401,6 @@ eta=sqrt(trace(C21)+1)/2;
 e1=(C21(2,3)-C21(3,2))/(4*eta);
 e2=(C21(3,1)-C21(1,3))/(4*eta);
 e3=(C21(1,2)-C21(2,1))/(4*eta);
-=======
-%%
-
-
->>>>>>> origin/master
 
 %epsilon
 eps=[e1;e2;e3];
@@ -413,7 +451,7 @@ q_rates=[eps_d;eta_d];
 end
 
 %solar pressure torque
-function T_s=sol_press_torq(s_vect)
+function T_total=sol_press_torq(s_vect)
 
 %top surfaces (normal vectors)
 n_top=[0; 0; -1];
@@ -461,15 +499,83 @@ A_p=6; %m^2
 
 A=[A_c A_p A_p A_c A_p A_p A_c A_c A_c A_c];
 
-nds=dot(n,s);
-
-if nds>=0
+for i = 1:length(A)
+    nds=dot(n(:,i),s_vect);
+if nds >= 0
     
-    T_s=cross(rho,-p.*A*nds*s);
+    T_s(:,i)=cross(rho(:,i),-p.*A(i)*nds*s_vect);
     
 else
-    T_s=0;
+    T_s(:,i)= zeros(3,1);
     
 end
+
+end
+
+T_total = sum(T_s(:,:),2); % 3x1
+
+end
+
+function T_total=drag(vel_body)
+dc = 2.1;
+
+dense = 1.19e-14;
+%top surfaces (normal vectors)
+n_top=[0; 0; -1];
+
+%bottom surfaces (normal vectors)
+n_bot=[0; 0; 1];
+
+%front and back
+n_f=[1; 0; 0];
+n_b=[-1; 0; 0];
+
+%sides
+n_l=[0; -1; 0];
+n_r=[0; 1; 0];
+
+%normal vector, vector
+n=[n_top n_top n_top n_bot n_bot n_bot n_f n_b n_l n_r];
+
+%position vectors
+a=0.234375; %m
+b=0.7656; %m
+c=1.7656; %m
+d=2.5; %m
+top_c=[0;0;-c];
+bot_c=[0;0;b];
+front_c=[1;0;-a];
+back_c=[-1;0;-a];
+l_side_c=[0;-1;-a];
+r_side_c=[0;1;-a];
+l_sol_p_top=[0;-d;-a];
+l_sol_p_bot=[0;-d;-a];
+r_sol_p_top=[0;d;-a];
+r_sol_p_bot=[0;d;-a];
+
+%position relative to com, vector
+rho=[top_c l_sol_p_top r_sol_p_top bot_c l_sol_p_bot r_sol_p_bot...
+    front_c back_c l_side_c r_side_c];
+
+%spacecraft areas
+A_c=4; %m^2
+A_p=6; %m^2
+
+A=[A_c A_p A_p A_c A_p A_p A_c A_c A_c A_c];
+
+for i = 1:length(A)
+    nds=dot(n(:,i),s_vect);
+if nds >= 0
+    
+    T_s(:,i)=cross(rho(:,i),-1/2*cd*dense*norm(vel_body)^2*1000*nds*A(i)*vel_body/norm(vel_body));
+    
+else
+    T_s(:,i)= zeros(3,1);
+    
+end
+
+end
+
+T_total = sum(T_s(:,:),2); % 3x1
 
 end
