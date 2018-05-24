@@ -247,8 +247,12 @@ options = odeset('RelTol',1e-8,'AbsTol',1e-8);
 
 %% ECI plots
 
+%time span for # of orbits
+t_span=period*4; %s
+t_span=linspace(0,t_span,length(tnew));
+
 figure
-plot(tnew,statenew(:,1:3))
+plot(t_span,statenew(:,1:3))
 title('Euler Angles (F_b to F_E_C_I) vs. Time')
 xlabel('Time [s]')
 ylabel('Euler Angle [rad]')
@@ -256,7 +260,7 @@ legend('\phi - roll','\theta - pitch','\psi - yaw','location','east')
 grid on
 
 figure
-plot(tnew,statenew(:,4:6))
+plot(t_span,statenew(:,4:6))
 title('Angular Velocity (F_b rel. to F_E_C_I) vs. Time')
 xlabel('Time [s]')
 ylabel('Angular Velocity [rad/s]')
@@ -264,7 +268,7 @@ legend('\omega_x','\omega_y','\omega_z','location','east')
 grid on
 
 figure
-plot(tnew,statenew(:,7:10))
+plot(t_span,statenew(:,7:10))
 title('Quaternions (F_b to F_E_C_I) vs. Time')
 xlabel('Time [s]')
 ylabel('Quaternion Magnitude')
@@ -274,7 +278,7 @@ grid on
 %% LVLH plots
 
 figure
-plot(tnew,statenew(:,17:19))
+plot(t_span,statenew(:,17:19))
 title('Euler Angles (F_b to F_L_V_L_H) vs. Time')
 xlabel('Time [s]')
 ylabel('Euler Angle [rad]')
@@ -282,7 +286,7 @@ legend('\phi - roll','\theta - pitch','\psi - yaw')
 grid on
 
 figure
-plot(tnew,statenew(:,20:22))
+plot(t_span,statenew(:,20:22))
 title('Angular Velocity (F_b rel. to F_L_V_L_H)  vs. Time')
 xlabel('Time [s]')
 ylabel('Angular Velocity [rad/s]')
@@ -290,7 +294,7 @@ legend('\omega_x','\omega_y','\omega_z')
 grid on
 
 figure
-plot(tnew,statenew(:,23:26))
+plot(t_span,statenew(:,23:26))
 title('Quaternions (F_b to F_L_V_L_H) vs. Time')
 xlabel('Time [s]')
 ylabel('Quaternion Magnitude')
@@ -346,19 +350,36 @@ ta = deg2rad(ta); %rad (true anomaly)
 %% 3. Plot the total angular momentum accumulated by the spacecraft during the DITL.
 
 %angular velocity (from ode45)
-ang_vel=statenew(:,4:6)'; %1/s
+ang_vel_eci=statenew(:,4:6)'; %1/s
 
 %angular momentum
-h=I*ang_vel; %km^2/s
+h_eci=I*ang_vel_eci; %kg*m^2/s
 
-h_total=cumsum(h,2); %km^2/s
+h_total_eci=cumsum(h_eci,2); %kg*m^2/s
 
 %total accumulated angular momentum
 figure
-plot(tnew,h_total)
-title('Total Accumulated Angular Momentum vs. Time')
+plot(tnew,h_total_eci)
+title('Total Accumulated Angular Momentum (ECI) vs. Time')
 xlabel('Time [s]')
-ylabel('Angular Momentum [km^2/s]')
+ylabel('Angular Momentum [kg*m^2/s]')
+legend('h_x','h_y','h_z')
+grid on
+
+%angular velocity (from ode45)
+ang_vel_lvlh=statenew(:,17:19)'; %1/s
+
+%angular momentum
+h_lvlh=I*ang_vel_lvlh; %kg*m^2/s
+
+h_total_lvlh=cumsum(h_lvlh,2); %kg*m^2/s
+
+%total accumulated angular momentum
+figure
+plot(tnew,h_total_lvlh)
+title('Total Accumulated Angular Momentum (LVLH) vs. Time')
+xlabel('Time [s]')
+ylabel('Angular Momentum [kg*m^2/s]')
 legend('h_x','h_y','h_z')
 grid on
 
@@ -407,7 +428,7 @@ latitude = atan2d(r_eci(3),sqrt((r_eci(1)^2) + (r_eci(2)^2)));
 height = (norm(r_eci)-6378);
 
 % Magnetic Field Vector
-[B, ~, ~, ~, ~] = wrldmagm(height, latitude, longitude, 2017, '2017');
+[B, ~, ~, ~, ~] = wrldmagm(height, latitude, longitude, 2015, '2015');
 
 %% stuff needed
 Smag = .05*[0,0,-1]; %given stuff from prompt
